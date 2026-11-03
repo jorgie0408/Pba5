@@ -1,4 +1,94 @@
-# Pba5
+package uts.c14220290.app
+
+import android.content.ContentValues
+import android.content.Context
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
+
+class DatabaseHelper(context: Context) :
+    SQLiteOpenHelper(context, "CafeDB", null, 1) {
+
+    override fun onCreate(db: SQLiteDatabase) {
+        val query = """
+            CREATE TABLE orders (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                customer_name TEXT,
+                phone TEXT,
+                menu_name TEXT,
+                price INTEGER,
+                quantity INTEGER,
+                subtotal INTEGER,
+                discount INTEGER,
+                total INTEGER,
+                is_member INTEGER,
+                date TEXT
+            )
+        """.trimIndent()
+
+        db.execSQL(query)
+    }
+
+    override fun onUpgrade(
+        db: SQLiteDatabase,
+        oldVersion: Int,
+        newVersion: Int
+    ) {
+        db.execSQL("DROP TABLE IF EXISTS orders")
+        onCreate(db)
+    }
+
+    fun insertOrder(order: Order): Long {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put("customer_name", order.customerName)
+            put("phone", order.phone)
+            put("menu_name", order.menuName)
+            put("price", order.price)
+            put("quantity", order.quantity)
+            put("subtotal", order.subtotal)
+            put("discount", order.discount)
+            put("total", order.total)
+            put("is_member", if (order.isMember) 1 else 0)
+            put("date", order.date)
+        }
+
+        return db.insert("orders", null, values)
+    }
+
+    fun getAllOrders(): ArrayList<Order> {
+        val orders = ArrayList<Order>()
+        val db = readableDatabase
+
+        val cursor = db.rawQuery(
+            "SELECT * FROM orders ORDER BY id DESC",
+            null
+        )
+
+        cursor.use {
+            while (it.moveToNext()) {
+                orders.add(
+                    Order(
+                        id = it.getInt(it.getColumnIndexOrThrow("id")),
+                        customerName = it.getString(it.getColumnIndexOrThrow("customer_name")),
+                        phone = it.getString(it.getColumnIndexOrThrow("phone")),
+                        menuName = it.getString(it.getColumnIndexOrThrow("menu_name")),
+                        price = it.getInt(it.getColumnIndexOrThrow("price")),
+                        quantity = it.getInt(it.getColumnIndexOrThrow("quantity")),
+                        subtotal = it.getInt(it.getColumnIndexOrThrow("subtotal")),
+                        discount = it.getInt(it.getColumnIndexOrThrow("discount")),
+                        total = it.getInt(it.getColumnIndexOrThrow("total")),
+                        isMember = it.getInt(it.getColumnIndexOrThrow("is_member")) == 1,
+                        date = it.getString(it.getColumnIndexOrThrow("date"))
+                    )
+                )
+            }
+        }
+
+        return orders
+    }
+}
+
+
 KETENTUAN UMUM & REPOSITORY GITHUB
 Sifat UTS : Open ALL Kecuali penggunaan AI
 Nama Project: uts_nrp (Contoh: uts_c142300002)
