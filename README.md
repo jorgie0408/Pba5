@@ -1,3 +1,58 @@
+package uts.c14220290.app
+
+import android.os.Bundle
+import android.view.View
+import android.widget.Button
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+
+class HistoryActivity : AppCompatActivity() {
+
+    private lateinit var dbHelper: DatabaseHelper
+    private lateinit var rvHistory: RecyclerView
+    private lateinit var tvEmpty: TextView
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_history)
+
+        dbHelper = DatabaseHelper(this)
+
+        rvHistory = findViewById(R.id.rvHistory)
+        tvEmpty = findViewById(R.id.tvEmpty)
+
+        val btnBack = findViewById<Button>(R.id.btnBack)
+
+        rvHistory.layoutManager = LinearLayoutManager(this)
+
+        btnBack.setOnClickListener {
+            finish()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadHistory()
+    }
+
+    private fun loadHistory() {
+        val orders = dbHelper.getAllOrders()
+
+        rvHistory.adapter = OrderAdapter(orders)
+
+        if (orders.isEmpty()) {
+            tvEmpty.visibility = View.VISIBLE
+            rvHistory.visibility = View.GONE
+        } else {
+            tvEmpty.visibility = View.GONE
+            rvHistory.visibility = View.VISIBLE
+        }
+    }
+}
+
+
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
