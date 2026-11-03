@@ -1,4 +1,60 @@
+
+
 package uts.c14220290.app
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import java.text.NumberFormat
+import java.util.Locale
+
+class OrderAdapter(
+    private val orderList: List<Order>
+) : RecyclerView.Adapter<OrderAdapter.OrderViewHolder>() {
+
+    class OrderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val customer: TextView = view.findViewById(R.id.tvCustomer)
+        val menu: TextView = view.findViewById(R.id.tvOrderMenu)
+        val quantity: TextView = view.findViewById(R.id.tvOrderQuantity)
+        val total: TextView = view.findViewById(R.id.tvOrderTotal)
+        val date: TextView = view.findViewById(R.id.tvOrderDate)
+        val discount: TextView = view.findViewById(R.id.tvOrderDiscount)
+    }
+
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): OrderViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_order, parent, false)
+
+        return OrderViewHolder(view)
+    }
+
+    override fun onBindViewHolder(
+        holder: OrderViewHolder,
+        position: Int
+    ) {
+        val order = orderList[position]
+
+        holder.customer.text = "Pelanggan: ${order.customerName}"
+        holder.menu.text = "Menu: ${order.menuName}"
+        holder.quantity.text = "Jumlah: ${order.quantity}"
+        holder.discount.text = "Diskon: ${formatRupiah(order.discount)}"
+        holder.total.text = "Total: ${formatRupiah(order.total)}"
+        holder.date.text = "Tanggal: ${order.date}"
+    }
+
+    override fun getItemCount(): Int = orderList.size
+
+    private fun formatRupiah(value: Int): String {
+        return NumberFormat.getCurrencyInstance(
+            Locale("id", "ID")
+        ).format(value)
+    }
+}package uts.c14220290.app
 
 import android.content.Intent
 import android.net.Uri
