@@ -1,5 +1,58 @@
 package uts.c14220290.app
 
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import java.text.NumberFormat
+import java.util.Locale
+
+class MenuAdapter(
+    private val menuList: List<Menu>,
+    private val onClick: (Menu) -> Unit
+) : RecyclerView.Adapter<MenuAdapter.MenuViewHolder>() {
+
+    class MenuViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val name: TextView = view.findViewById(R.id.tvMenuName)
+        val description: TextView = view.findViewById(R.id.tvMenuDescription)
+        val price: TextView = view.findViewById(R.id.tvMenuPrice)
+        val button: Button = view.findViewById(R.id.btnChoose)
+    }
+
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): MenuViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_menu, parent, false)
+
+        return MenuViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: MenuViewHolder, position: Int) {
+        val menu = menuList[position]
+
+        holder.name.text = menu.name
+        holder.description.text = menu.description
+
+        holder.price.text = formatRupiah(menu.price)
+
+        holder.button.setOnClickListener {
+            onClick(menu)
+        }
+    }
+
+    override fun getItemCount(): Int = menuList.size
+
+    private fun formatRupiah(value: Int): String {
+        return NumberFormat.getCurrencyInstance(
+            Locale("id", "ID")
+        ).format(value)
+    }
+}package uts.c14220290.app
+
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
