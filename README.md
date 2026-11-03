@@ -1,5 +1,53 @@
 package uts.c14220290.app
 
+import android.content.Intent
+import android.os.Bundle
+import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var rvMenu: RecyclerView
+    private lateinit var btnHistory: Button
+
+    private val menuList = listOf(
+        Menu(1, "Espresso", "Kopi espresso original", 15000),
+        Menu(2, "Americano", "Espresso dengan air panas", 18000),
+        Menu(3, "Cafe Latte", "Espresso dengan susu steamed", 22000),
+        Menu(4, "Cappuccino", "Espresso dengan foam susu", 22000),
+        Menu(5, "Matcha Latte", "Matcha dengan susu creamy", 25000),
+        Menu(6, "Chocolate", "Minuman cokelat premium", 23000)
+    )
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        rvMenu = findViewById(R.id.rvMenu)
+        btnHistory = findViewById(R.id.btnHistory)
+
+        rvMenu.layoutManager = LinearLayoutManager(this)
+
+        rvMenu.adapter = MenuAdapter(menuList) { menu ->
+            val intent = Intent(this, OrderActivity::class.java)
+
+            intent.putExtra("MENU_ID", menu.id)
+            intent.putExtra("MENU_NAME", menu.name)
+            intent.putExtra("MENU_PRICE", menu.price)
+
+            startActivity(intent)
+        }
+
+        btnHistory.setOnClickListener {
+            startActivity(
+                Intent(this, HistoryActivity::class.java)
+            )
+        }
+    }
+}
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
