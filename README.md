@@ -1,5 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_marginBottom="12dp"
+    android:background="#FFFFFF"
+    android:elevation="3dp">
+
+    <TextView
+        android:id="@+id/tvCustomer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pelanggan"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:textColor="#543A2C" />
+
+    <TextView
+        android:id="@+id/tvOrderMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Menu"
+        android:textColor="#543A2C"
+        android:paddingTop="6dp" />
+
+    <TextView
+        android:id="@+id/tvOrderQuantity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Jumlah"
+        android:textColor="#543A2C"
+        android:paddingTop="4dp" />
+
+    <TextView
+        android:id="@+id/tvOrderDiscount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Diskon"
+        android:textColor="#4CAF50"
+        android:paddingTop="4dp" />
+
+    <TextView
+        android:id="@+id/tvOrderTotal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Total"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:textColor="#795548"
+        android:paddingTop="6dp" />
+
+    <TextView
+        android:id="@+id/tvOrderDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tanggal"
+        android:textSize="12sp"
+        android:textColor="#888888"
+        android:paddingTop="6dp" />
+
+</LinearLayout>
+
+
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
