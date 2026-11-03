@@ -1,3 +1,215 @@
+package uts.c14220290.app
+
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+class OrderActivity : AppCompatActivity() {
+
+    private lateinit var dbHelper: DatabaseHelper
+
+    private var menuId = 0
+    private var menuName = ""
+    private var menuPrice = 0
+
+    private var subtotal = 0
+    private var discount = 0
+    private var total = 0
+    private var calculated = false
+
+    private lateinit var etCustomerName: EditText
+    private lateinit var etPhone: EditText
+    private lateinit var etQuantity: EditText
+    private lateinit var cbMember: CheckBox
+
+    private lateinit var tvSelectedMenu: TextView
+    private lateinit var tvSelectedPrice: TextView
+    private lateinit var tvSubtotal: TextView
+    private lateinit var tvDiscount: TextView
+    private lateinit var tvTotal: TextView
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_order)
+
+        dbHelper = DatabaseHelper(this)
+
+        menuId = intent.getIntExtra("MENU_ID", 0)
+        menuName = intent.getStringExtra("MENU_NAME") ?: ""
+        menuPrice = intent.getIntExtra("MENU_PRICE", 0)
+
+        etCustomerName = findViewById(R.id.etCustomerName)
+        etPhone = findViewById(R.id.etPhone)
+        etQuantity = findViewById(R.id.etQuantity)
+        cbMember = findViewById(R.id.cbMember)
+
+        tvSelectedMenu = findViewById(R.id.tvSelectedMenu)
+        tvSelectedPrice = findViewById(R.id.tvSelectedPrice)
+        tvSubtotal = findViewById(R.id.tvSubtotal)
+        tvDiscount = findViewById(R.id.tvDiscount)
+        tvTotal = findViewById(R.id.tvTotal)
+
+        val btnCalculate = findViewById<Button>(R.id.btnCalculate)
+        val btnConfirm = findViewById<Button>(R.id.btnConfirm)
+
+        tvSelectedMenu.text = menuName
+        tvSelectedPrice.text = "Harga: ${formatRupiah(menuPrice)}"
+
+        btnCalculate.setOnClickListener {
+            calculateTotal()
+        }
+
+        btnConfirm.setOnClickListener {
+            confirmOrder()
+        }
+    }
+
+    private fun calculateTotal() {
+        val quantity = etQuantity.text.toString().toIntOrNull()
+
+        if (quantity == null || quantity <= 0) {
+            etQuantity.error = "Masukkan jumlah yang valid"
+            calculated = false
+            return
+        }
+
+        subtotal = menuPrice * quantity
+
+        discount = if (cbMember.isChecked) {
+            (subtotal * 0.10).toInt()
+        } else {
+            0
+        }
+
+        total = subtotal - discount
+        calculated = true
+
+        tvSubtotal.text = "Subtotal: ${formatRupiah(subtotal)}"
+        tvDiscount.text = "Diskon: ${formatRupiah(discount)}"
+        tvTotal.text = "Total: ${formatRupiah(total)}"
+    }
+
+    private fun confirmOrder() {
+        val customerName = etCustomerName.text.toString().trim()
+        val phone = etPhone.text.toString().trim()
+        val quantity = etQuantity.text.toString().toIntOrNull()
+
+        if (customerName.isEmpty()) {
+            etCustomerName.error = "Nama harus diisi"
+            return
+        }
+
+        if (phone.isEmpty()) {
+            etPhone.error = "Nomor telepon harus diisi"
+            return
+        }
+
+        if (quantity == null || quantity <= 0) {
+            etQuantity.error = "Jumlah pesanan tidak valid"
+            return
+        }
+
+        // Hitung ulang untuk memastikan nilai terbaru tersimpan
+        calculateTotal()
+
+        if (!calculated) return
+
+        val currentDate = SimpleDateFormat(
+            "dd-MM-yyyy HH:mm",
+            Locale("id", "ID")
+        ).format(Date())
+
+        val order = Order(
+            id = 0,
+            customerName = customerName,
+            phone = phone,
+            menuName = menuName,
+            price = menuPrice,
+            quantity = quantity,
+            subtotal = subtotal,
+            discount = discount,
+            total = total,
+            isMember = cbMember.isChecked,
+            date = currentDate
+        )
+
+        val result = dbHelper.insertOrder(order)
+
+        if (result == -1L) {
+            Toast.makeText(
+                this,
+                "Gagal menyimpan transaksi",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        Toast.makeText(
+            this,
+            "Pesanan berhasil disimpan",
+            Toast.LENGTH_SHORT
+        ).show()
+
+        sendSMS(customerName, phone, quantity)
+    }
+
+    private fun sendSMS(
+        customerName: String,
+        phone: String,
+        quantity: Int
+    ) {
+        val message = """
+            STRUK JORGIE CAFE
+
+            Pelanggan: $customerName
+            Menu: $menuName
+            Harga: ${formatRupiah(menuPrice)}
+            Jumlah: $quantity
+            Subtotal: ${formatRupiah(subtotal)}
+            Diskon: ${formatRupiah(discount)}
+            Total: ${formatRupiah(total)}
+
+            Terima kasih telah berbelanja!
+        """.trimIndent()
+
+        val intent = Intent(
+            Intent.ACTION_SENDTO,
+            Uri.parse("smsto:$phone")
+        )
+
+        intent.putExtra("sms_body", message)
+
+        try {
+            startActivity(intent)
+            finish()
+        } catch (e: Exception) {
+            Toast.makeText(
+                this,
+                "Pesanan tersimpan, tetapi aplikasi SMS tidak tersedia",
+                Toast.LENGTH_LONG
+            ).show()
+            finish()
+        }
+    }
+
+    private fun formatRupiah(value: Int): String {
+        return NumberFormat.getCurrencyInstance(
+            Locale("id", "ID")
+        ).format(value)
+    }
+}
+
+
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
